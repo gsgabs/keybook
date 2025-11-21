@@ -4,10 +4,9 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
-  static const String _baseUrl =
-      'http://10.0.2.2:8080'; // Para emulador Android
   // static const String _baseUrl =
-  //     'http://localhost:8080'; // Para web chrome
+  //     'http://10.0.2.2:8080'; // Para emulador Android
+  static const String _baseUrl = 'http://localhost:8080'; // Para web chrome
   static String? _token;
   static int? _userId;
 

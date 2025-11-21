@@ -33,10 +33,10 @@ class CustomBottomNavBar extends StatelessWidget {
           icon: Icon(Icons.home, size: 26),
           label: 'Home',
         ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.list, size: 26),
-          label: 'Tabelas',
-        ),
+        // BottomNavigationBarItem(
+        //   icon: Icon(Icons.list, size: 26),
+        //   label: 'Tabelas',
+        // ),
         BottomNavigationBarItem(
           icon: Icon(Icons.inbox_rounded, size: 26),
           label: 'Criar',

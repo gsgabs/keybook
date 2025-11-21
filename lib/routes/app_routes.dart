@@ -6,6 +6,6 @@ class AppRoutes {
   static final routes = {
     '/login': (context) => const LoginScreen(),
     '/register': (context) => const RegisterScreen(),
-    '/home': (context) => const MainNavigation(), // Adicione esta linha
+    '/home': (context) => const MainNavigation(),
   };
 }

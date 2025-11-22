@@ -1,30 +1,39 @@
 import 'package:flutter/material.dart';
 import 'routes/app_routes.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:keybook/service/theme_service.dart';
+import 'theme/app_themes.dart';
 
 import 'screens/key_list_screen.dart'; // Home
-import 'screens/home_screen.dart'; // (Mapa e notificações, se quiser usar em outro lugar)
 import 'screens/profile_screen.dart'; // Perfil
 import 'screens/historic_screen.dart'; // Histórico
 import 'widgets/custom_bottom_nav_bar.dart';
 
-void main() {
-  runApp(const KeybookApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final themeController = ThemeController.instance;
+  await themeController.loadThemeMode();
+  runApp(KeybookApp(themeController: themeController));
 }
 
 class KeybookApp extends StatelessWidget {
-  const KeybookApp({super.key});
+  final ThemeController themeController;
+
+  const KeybookApp({super.key, required this.themeController});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      initialRoute: '/login',
-      routes: AppRoutes.routes,
-      theme: ThemeData(
-        scaffoldBackgroundColor: const Color(0xFF1D1D1D),
-        textTheme: GoogleFonts.interTextTheme(),
-      ),
+    return AnimatedBuilder(
+      animation: themeController,
+      builder: (context, _) {
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          initialRoute: '/login',
+          routes: AppRoutes.routes,
+          theme: AppThemes.light,
+          darkTheme: AppThemes.dark,
+          themeMode: themeController.themeMode,
+        );
+      },
     );
   }
 }

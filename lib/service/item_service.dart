@@ -2,10 +2,10 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
 import 'auth_service.dart'; // Adicione esta importação
+import 'api.dart';
 
 class ItemService {
-  final String baseUrl = 'http://127.0.0.1:8080'; // Remova a barra no final
-  // final String baseUrl = 'http://10.0.2.2:8080';
+  // baseUrl resolved via getBaseUrl()
 
   Future<Map<String, dynamic>> createItem({
     required String nome,
@@ -25,7 +25,7 @@ class ItemService {
     String? observacoes,
   }) async {
     try {
-      final url = Uri.parse('$baseUrl/tables/$tabelaId/items'); // URL correta
+      final url = Uri.parse('${getBaseUrl()}/tables/$tabelaId/items'); // URL correta
 
       // Obtenha os headers de autenticação
       final headers = await AuthService.headers;
@@ -71,7 +71,7 @@ class ItemService {
   // Deleta um item
   Future<void> deleteItem(int itemId) async {
     try {
-      final url = Uri.parse('$baseUrl/items/$itemId');
+      final url = Uri.parse('${getBaseUrl()}/items/$itemId');
       final headers = await AuthService.headers;
 
       final response = await http.delete(url, headers: headers);
@@ -90,7 +90,7 @@ class ItemService {
   // Busca os detalhes completos de um item
   Future<Map<String, dynamic>> getItemDetails(int itemId) async {
     final response = await http.get(
-      Uri.parse('$baseUrl/items/$itemId/details'),
+      Uri.parse('${getBaseUrl()}/items/$itemId/details'),
       headers: await AuthService.headers,
     );
 
@@ -117,7 +117,7 @@ class ItemService {
     String? observacoes,
   }) async {
     final response = await http.put(
-      Uri.parse('$baseUrl/items/$itemId/details'),
+      Uri.parse('${getBaseUrl()}/items/$itemId/details'),
       headers: await AuthService.headers,
       body: jsonEncode({
         'nome': nome,
@@ -152,7 +152,7 @@ class ItemService {
         '🔍 Buscando sugestões para campo "$fieldName" com query: "$query"',
       );
       debugPrint(
-        '📡 URL: $baseUrl/items/suggestions?field=$fieldName&query=$query',
+        '📡 URL: ${getBaseUrl()}/items/suggestions?field=$fieldName&query=$query',
       );
 
       final headers = await AuthService.headers;
@@ -160,7 +160,7 @@ class ItemService {
 
       final response = await http.get(
         Uri.parse(
-          '$baseUrl/items/suggestions?field=$fieldName&query=${Uri.encodeQueryComponent(query)}',
+          '${getBaseUrl()}/items/suggestions?field=$fieldName&query=${Uri.encodeQueryComponent(query)}',
         ),
         headers: headers,
       );

@@ -2,11 +2,11 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'api.dart';
 
 class AuthService {
   // static const String _baseUrl =
   //     'http://10.0.2.2:8080'; // Para emulador Android
-  static const String _baseUrl = 'http://localhost:8080'; // Para web chrome
   static String? _token;
   static int? _userId;
 
@@ -24,14 +24,31 @@ class AuthService {
   }) async {
     try {
       final response = await http.post(
-        Uri.parse('$_baseUrl/auth/register'),
+        Uri.parse('${getBaseUrl()}/auth/register'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'nome': nome, 'email': email, 'password': password}),
       );
 
+      // Debug logs: status and body to help diagnose backend responses
+      debugPrint('Register response status: ${response.statusCode}');
+      debugPrint('Register response body: "${response.body}"');
+
       if (response.statusCode != 201) {
-        final error = jsonDecode(response.body);
-        throw Exception(error['message'] ?? 'Falha no registro');
+        // If body is empty or not JSON, avoid jsonDecode to prevent FormatException
+        final body = response.body
+            .toString()
+            .trim();
+        if (body.isNotEmpty) {
+          try {
+            final error = jsonDecode(body);
+            throw Exception(error['message'] ?? 'Falha no registro');
+          } catch (e) {
+            // If parsing fails, throw a generic exception including raw body
+            throw Exception('Falha no registro: status ${response.statusCode}, body: $body');
+          }
+        } else {
+          throw Exception('Falha no registro: status ${response.statusCode} (body vazio)');
+        }
       }
     } catch (e) {
       debugPrint('Erro no registro: $e');
@@ -43,7 +60,7 @@ class AuthService {
   static Future<String> login(String email, String password) async {
     try {
       final response = await http.post(
-        Uri.parse('$_baseUrl/auth/login'),
+        Uri.parse('${getBaseUrl()}/auth/login'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'email': email, 'password': password}),
       );
@@ -89,7 +106,7 @@ class AuthService {
     try {
       // Tenta chamar o endpoint de logout (opcional)
       await http.post(
-        Uri.parse('$_baseUrl/auth/logout'),
+        Uri.parse('${getBaseUrl()}/auth/logout'),
         headers: {
           'Content-Type': 'application/json',
           if (_token != null) 'Authorization': 'Bearer $_token',
@@ -143,7 +160,7 @@ class AuthService {
       }
 
       final response = await http.get(
-        Uri.parse('$_baseUrl/users/$userId'),
+        Uri.parse('${getBaseUrl()}/users/$userId'),
         headers: await headers,
       );
 
@@ -176,7 +193,7 @@ class AuthService {
       if (userId == null) throw Exception('Usuário não autenticado');
 
       final response = await http.put(
-        Uri.parse('$_baseUrl/users/$userId'),
+        Uri.parse('${getBaseUrl()}/users/$userId'),
         headers: await headers,
         body: jsonEncode({
           'nome': nome,
@@ -204,7 +221,7 @@ class AuthService {
       if (userId == null) throw Exception('Usuário não autenticado');
 
       final response = await http.delete(
-        Uri.parse('$_baseUrl/users/$userId'),
+        Uri.parse('${getBaseUrl()}/users/$userId'),
         headers: await headers,
       );
 

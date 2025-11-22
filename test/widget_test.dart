@@ -8,23 +8,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:keybook/main.dart';
+import 'package:keybook/service/theme_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const KeybookApp());
+  TestWidgetsFlutterBinding.ensureInitialized();
+  SharedPreferences.setMockInitialValues({});
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+  test('ThemeController alterna entre modos', () async {
+    final themeController = ThemeController.instance;
+    expect(themeController.themeMode, ThemeMode.dark);
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    await themeController.toggleTheme();
+    expect(themeController.themeMode, ThemeMode.light);
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    await themeController.toggleTheme();
+    expect(themeController.themeMode, ThemeMode.dark);
   });
 }

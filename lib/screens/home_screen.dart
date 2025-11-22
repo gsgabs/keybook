@@ -49,6 +49,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
+      if (!mounted) return;
       setState(() {
         _location = 'Serviço de localização desativado';
       });
@@ -59,6 +60,7 @@ class _HomeScreenState extends State<HomeScreen> {
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
+        if (!mounted) return;
         setState(() {
           _location = 'Permissão negada';
         });
@@ -67,6 +69,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     if (permission == LocationPermission.deniedForever) {
+      if (!mounted) return;
       setState(() {
         _location = 'Permissão permanentemente negada';
       });
@@ -74,6 +77,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     final pos = await Geolocator.getCurrentPosition();
+    if (!mounted) return;
     setState(() {
       _location =
           '${pos.latitude.toStringAsFixed(5)}, ${pos.longitude.toStringAsFixed(5)}';

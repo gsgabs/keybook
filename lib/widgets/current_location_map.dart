@@ -21,14 +21,30 @@ class _CurrentLocationMapState extends State<CurrentLocationMap> {
 
   Future<void> _getCurrentLocation() async {
     final position = await Geolocator.getCurrentPosition();
+    if (!mounted) return;
     setState(() {
       _currentLatLng = LatLng(position.latitude, position.longitude);
     });
+    if (!mounted) return;
     if (_controller != null && _currentLatLng != null) {
-      _controller!.animateCamera(
-        CameraUpdate.newLatLng(_currentLatLng!),
-      );
+      try {
+        _controller!.animateCamera(
+          CameraUpdate.newLatLng(_currentLatLng!),
+        );
+      } catch (_) {
+        // ignore errors if controller is not ready
+      }
     }
+  }
+
+  @override
+  void dispose() {
+    try {
+      _controller?.dispose();
+    } catch (_) {
+      // ignore dispose errors
+    }
+    super.dispose();
   }
 
   @override

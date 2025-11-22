@@ -37,10 +37,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
       if (mounted) {
         // Mostra mensagem de sucesso
+        final successColor = Theme.of(context).colorScheme.primary;
+        final onSuccess = Theme.of(context).colorScheme.onPrimary;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text('Registro realizado com sucesso!'),
-            backgroundColor: Colors.green,
+          SnackBar(
+            content: Text(
+              'Registro realizado com sucesso!',
+              style: GoogleFonts.inter(color: onSuccess),
+            ),
+            backgroundColor: successColor,
           ),
         );
 
@@ -58,8 +63,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final textColor = theme.colorScheme.onSurface;
+
     return Scaffold(
-      backgroundColor: const Color(0xFF1D1D1D),
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -75,7 +83,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   Text(
                     'Registre-se agora!',
                     style: GoogleFonts.inter(
-                      color: Colors.white,
+                      color: textColor,
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
                     ),
@@ -126,7 +134,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     child: ElevatedButton(
                       onPressed: _handleRegister,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue,
+                        backgroundColor: theme.colorScheme.primary,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(6),
                         ),
@@ -134,7 +142,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       child: Text(
                         'Registrar',
                         style: GoogleFonts.inter(
-                          color: Colors.white,
+                          color: theme.colorScheme.onPrimary,
                           fontSize: 16,
                         ),
                       ),
@@ -146,7 +154,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     child: Text(
                       'Já tem conta? Faça login',
                       style: GoogleFonts.inter(
-                        color: Colors.blue,
+                        color: theme.colorScheme.primary,
                         decoration: TextDecoration.underline,
                       ),
                     ),
@@ -169,15 +177,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return TextFormField(
       controller: controller,
       obscureText: obscureText,
-      style: GoogleFonts.inter(color: Colors.white),
+      style: GoogleFonts.inter(color: Theme.of(context).colorScheme.onSurface),
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: GoogleFonts.inter(color: Colors.grey),
-        enabledBorder: const UnderlineInputBorder(
-          borderSide: BorderSide(color: Colors.grey),
+        labelStyle: GoogleFonts.inter(
+          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
         ),
-        focusedBorder: const UnderlineInputBorder(
-          borderSide: BorderSide(color: Colors.blue),
+        enabledBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: Theme.of(context).dividerColor),
+        ),
+        focusedBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),
         ),
       ),
       validator: validator,

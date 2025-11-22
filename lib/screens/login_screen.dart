@@ -72,8 +72,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final textColor = theme.colorScheme.onSurface;
+
     return Scaffold(
-      backgroundColor: const Color(0xFF1D1D1D),
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -89,7 +92,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   Text(
                     'Faça o seu Login!',
                     style: GoogleFonts.inter(
-                      color: Colors.white,
+                      color: textColor,
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
                     ),
@@ -117,11 +120,11 @@ class _LoginScreenState extends State<LoginScreen> {
                         onChanged:
                             (value) =>
                                 setState(() => _rememberMe = value ?? false),
-                        activeColor: Colors.blue,
+                        activeColor: theme.colorScheme.primary,
                       ),
                       Text(
                         'Lembrar-me',
-                        style: GoogleFonts.inter(color: Colors.white),
+                        style: GoogleFonts.inter(color: textColor),
                       ),
                     ],
                   ),
@@ -148,15 +151,17 @@ class _LoginScreenState extends State<LoginScreen> {
     return TextFormField(
       controller: controller,
       obscureText: obscureText,
-      style: GoogleFonts.inter(color: Colors.white),
+      style: GoogleFonts.inter(color: Theme.of(context).colorScheme.onSurface),
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: GoogleFonts.inter(color: Colors.grey),
-        enabledBorder: const UnderlineInputBorder(
-          borderSide: BorderSide(color: Colors.grey),
+        labelStyle: GoogleFonts.inter(
+          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
         ),
-        focusedBorder: const UnderlineInputBorder(
-          borderSide: BorderSide(color: Colors.blue),
+        enabledBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: Theme.of(context).dividerColor),
+        ),
+        focusedBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),
         ),
       ),
       validator: validator,
@@ -170,31 +175,39 @@ class _LoginScreenState extends State<LoginScreen> {
       child: ElevatedButton(
         onPressed: _handleLogin,
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.blue,
+          backgroundColor: Theme.of(context).colorScheme.primary,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
         ),
         child: Text(
           'Login',
-          style: GoogleFonts.inter(color: Colors.white, fontSize: 16),
+          style: GoogleFonts.inter(
+            color: Theme.of(context).colorScheme.onPrimary,
+            fontSize: 16,
+          ),
         ),
       ),
     );
   }
 
   Widget _buildRegisterLink() {
+    final theme = Theme.of(context);
+    final textColor = theme.colorScheme.onSurface;
+    final mutedColor = textColor.withOpacity(0.7);
+    final accentColor = theme.colorScheme.primary;
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
           'Não tem uma conta? ',
-          style: GoogleFonts.inter(color: Colors.white70),
+          style: GoogleFonts.inter(color: mutedColor),
         ),
         GestureDetector(
           onTap: () => Navigator.pushNamed(context, '/register'),
           child: Text(
             'Registre-se',
             style: GoogleFonts.inter(
-              color: Colors.blue,
+              color: accentColor,
               decoration: TextDecoration.underline,
             ),
           ),

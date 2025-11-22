@@ -17,6 +17,15 @@ class KeyTableCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final textColor = theme.colorScheme.onSurface;
+    final mutedColor = textColor.withOpacity(0.7);
+    final isLabelDark =
+        ThemeData.estimateBrightnessForColor(labelColor) == Brightness.dark;
+    final labelTextColor = isLabelDark
+        ? theme.colorScheme.onPrimary
+        : theme.colorScheme.onSurface;
+
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 6),
       child: Column(
@@ -33,7 +42,7 @@ class KeyTableCard extends StatelessWidget {
                 child: Text(
                   label,
                   style: GoogleFonts.inter(
-                    color: Colors.white,
+                    color: labelTextColor,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -42,12 +51,12 @@ class KeyTableCard extends StatelessWidget {
               Text(
                 '$itemCount items',
                 style: GoogleFonts.inter(
-                  color: Colors.white70,
+                  color: mutedColor,
                   fontSize: 13,
                 ),
               ),
               const Spacer(),
-              Icon(Icons.more_horiz, color: Colors.white70),
+              Icon(Icons.more_horiz, color: mutedColor),
             ],
           ),
           if (keyItems.isNotEmpty) ...[
@@ -74,14 +83,19 @@ class AddKeyCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF232323),
+        color: theme.cardColor,
         borderRadius: BorderRadius.circular(8),
       ),
       margin: const EdgeInsets.all(2),
       child: Center(
-        child: Icon(Icons.add, color: Colors.white, size: 28),
+        child: Icon(
+          Icons.add,
+          color: theme.colorScheme.onSurface,
+          size: 28,
+        ),
       ),
     );
   }
@@ -94,17 +108,18 @@ class KeyItemCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: const Color(0xFF2C2C2C),
+        color: theme.cardColor,
         borderRadius: BorderRadius.circular(8),
       ),
       child: Center(
         child: Text(
           keyName,
           style: GoogleFonts.inter(
-            color: Colors.white,
+            color: theme.colorScheme.onSurface,
             fontWeight: FontWeight.w500,
           ),
         ),

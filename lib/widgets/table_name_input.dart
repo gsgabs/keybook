@@ -13,23 +13,29 @@ class TableNameInput extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final textColor = theme.colorScheme.onSurface;
+    final hintColor = textColor.withOpacity(0.6);
+    final borderColor = theme.dividerColor;
+    final accentColor = theme.colorScheme.primary;
+
     return Row(
       children: [
         Expanded(
           child: TextField(
             controller: controller,
-            style: GoogleFonts.inter(color: Colors.white),
+            style: GoogleFonts.inter(color: textColor),
             decoration: InputDecoration(
               hintText: 'Nome da Tabela',
-              hintStyle: GoogleFonts.inter(color: Colors.white70),
-              border: const UnderlineInputBorder(
-                borderSide: BorderSide(color: Colors.white24, width: 1.2),
+              hintStyle: GoogleFonts.inter(color: hintColor),
+              border: UnderlineInputBorder(
+                borderSide: BorderSide(color: borderColor, width: 1.2),
               ),
-              enabledBorder: const UnderlineInputBorder(
-                borderSide: BorderSide(color: Colors.white24, width: 1.2),
+              enabledBorder: UnderlineInputBorder(
+                borderSide: BorderSide(color: borderColor, width: 1.2),
               ),
-              focusedBorder: const UnderlineInputBorder(
-                borderSide: BorderSide(color: Colors.blue, width: 1.5),
+              focusedBorder: UnderlineInputBorder(
+                borderSide: BorderSide(color: accentColor, width: 1.5),
               ),
               contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 0),
               isDense: true,
@@ -42,7 +48,7 @@ class TableNameInput extends StatelessWidget {
           child: ElevatedButton(
             onPressed: onAdd,
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blue,
+              backgroundColor: accentColor,
               padding: const EdgeInsets.symmetric(horizontal: 16),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(6),
@@ -51,7 +57,7 @@ class TableNameInput extends StatelessWidget {
             child: Text(
               'Adicionar Tabela',
               style: GoogleFonts.inter(
-                color: Colors.white,
+                color: theme.colorScheme.onPrimary,
                 fontSize: 13,
                 fontWeight: FontWeight.w500,
               ),

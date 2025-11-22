@@ -85,17 +85,17 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _showNotification() async {
-    const AndroidNotificationDetails androidPlatformChannelSpecifics =
-        AndroidNotificationDetails(
-          'default_channel',
-          'Notificações',
-          channelDescription: 'Canal padrão para notificações',
-          importance: Importance.max,
-          priority: Priority.high,
-          ticker: 'ticker',
-          color: Color(0xFF232323),
-        );
-    const NotificationDetails platformChannelSpecifics = NotificationDetails(
+    final theme = Theme.of(context);
+    final androidPlatformChannelSpecifics = AndroidNotificationDetails(
+      'default_channel',
+      'Notificações',
+      channelDescription: 'Canal padrão para notificações',
+      importance: Importance.max,
+      priority: Priority.high,
+      ticker: 'ticker',
+      color: theme.colorScheme.primary,
+    );
+    final platformChannelSpecifics = NotificationDetails(
       android: androidPlatformChannelSpecifics,
     );
     await _notificationsPlugin.show(
@@ -117,47 +117,56 @@ class _HomeScreenState extends State<HomeScreen> {
     showDialog(
       context: context,
       builder:
-          (context) => AlertDialog(
-            backgroundColor: const Color(0xFF232323),
-            title: Text(
-              'Dica',
-              style: GoogleFonts.inter(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
+          (context) {
+            final theme = Theme.of(context);
+            final textColor = theme.colorScheme.onSurface;
+            final mutedColor = textColor.withOpacity(0.7);
+            return AlertDialog(
+              backgroundColor: theme.colorScheme.surface,
+              title: Text(
+                'Dica',
+                style: GoogleFonts.inter(
+                  color: textColor,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            ),
-            content: Text(
-              'Se a notificação não aparecer:\n\n'
-              '- Certifique-se de que a permissão de notificação está ativada nas configurações do app.\n'
-              '- Em alguns celulares, pode ser necessário ativar manualmente.\n'
-              '- Em emuladores, notificações podem não funcionar corretamente.',
-              style: GoogleFonts.inter(color: Colors.white70, fontSize: 15),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text('OK', style: GoogleFonts.inter(color: Colors.blue)),
+              content: Text(
+                'Se a notificação não aparecer:\n\n'
+                '- Certifique-se de que a permissão de notificação está ativada nas configurações do app.\n'
+                '- Em alguns celulares, pode ser necessário ativar manualmente.\n'
+                '- Em emuladores, notificações podem não funcionar corretamente.',
+                style: GoogleFonts.inter(color: mutedColor, fontSize: 15),
               ),
-            ],
-          ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text('OK', style: GoogleFonts.inter(color: theme.colorScheme.primary)),
+                ),
+              ],
+            );
+          },
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final textColor = theme.colorScheme.onSurface;
+    final mutedColor = textColor.withOpacity(0.6);
+
     return SafeArea(
       bottom: false,
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Mapa'),
           titleTextStyle: TextStyle(
-            color: Colors.white,
+            color: textColor,
             fontSize: 24,
             fontWeight: FontWeight.bold,
           ),
-          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+          backgroundColor: theme.scaffoldBackgroundColor,
         ),
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        backgroundColor: theme.scaffoldBackgroundColor,
         body: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
@@ -168,7 +177,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 alignment: Alignment.centerLeft,
                 child: Text(
                   _location != null ? _location! : 'Obtendo localização...',
-                  style: GoogleFonts.inter(color: Colors.white70, fontSize: 14),
+                  style: GoogleFonts.inter(color: mutedColor, fontSize: 14),
                 ),
               ),
               const SizedBox(height: 32),
@@ -176,7 +185,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 width: double.infinity,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF232323),
+                    backgroundColor: theme.colorScheme.primary,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -184,7 +193,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   onPressed: _showNotification,
                   child: Text(
                     'Notificação',
-                    style: GoogleFonts.inter(color: Colors.white, fontSize: 16),
+                    style: GoogleFonts.inter(
+                      color: theme.colorScheme.onPrimary,
+                      fontSize: 16,
+                    ),
                   ),
                 ),
               ),
@@ -201,12 +213,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.help_outline, color: Colors.blue, size: 16),
+                      Icon(Icons.help_outline, color: theme.colorScheme.primary, size: 16),
                       const SizedBox(width: 4),
                       Text(
                         'A notificação não está funcionando ?',
                         style: GoogleFonts.inter(
-                          color: Colors.blue,
+                          color: theme.colorScheme.primary,
                           fontSize: 13,
                           fontWeight: FontWeight.w400,
                           letterSpacing: 0.2,

@@ -23,10 +23,20 @@ class KeyTableExpansion extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final textColor = theme.colorScheme.onSurface;
+    final mutedColor = textColor.withOpacity(0.6);
+    final popupColor = theme.colorScheme.surface;
+    final errorColor = theme.colorScheme.error;
+    final dialogBackground = theme.colorScheme.surface;
+    final isLabelDark =
+      ThemeData.estimateBrightnessForColor(table.color) == Brightness.dark;
+    final labelTextColor = isLabelDark
+      ? theme.colorScheme.onPrimary
+      : theme.colorScheme.onSurface;
+
     return ExpansionTile(
       tilePadding: EdgeInsets.zero,
-      collapsedBackgroundColor: Colors.transparent,
-      backgroundColor: Colors.transparent,
       leading: Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         decoration: BoxDecoration(
@@ -36,19 +46,19 @@ class KeyTableExpansion extends StatelessWidget {
         child: Text(
           table.name,
           style: GoogleFonts.inter(
-            color: Colors.white,
+            color: labelTextColor,
             fontWeight: FontWeight.w600,
           ),
         ),
       ),
       title: Text(
         '${table.keys.length} ${table.keys.length == 1 ? 'item' : 'items'}',
-        style: GoogleFonts.inter(color: Colors.white70, fontSize: 13),
+        style: GoogleFonts.inter(color: mutedColor, fontSize: 13),
         textAlign: TextAlign.end,
       ),
       trailing: PopupMenuButton<int>(
-        color: const Color(0xFF232323),
-        icon: const Icon(Icons.more_vert, color: Colors.white70),
+        color: popupColor,
+        icon: Icon(Icons.more_vert, color: mutedColor),
         onSelected: (value) {
           if (value == 0) {
             // Editar tabela
@@ -57,17 +67,17 @@ class KeyTableExpansion extends StatelessWidget {
               context: context,
               builder:
                   (context) => AlertDialog(
-                    backgroundColor: const Color(0xFF232323),
+                    backgroundColor: dialogBackground,
                     title: Text(
                       'Editar Tabela',
-                      style: GoogleFonts.inter(color: Colors.white),
+                      style: GoogleFonts.inter(color: textColor),
                     ),
                     content: TextField(
                       controller: controller,
-                      style: GoogleFonts.inter(color: Colors.white),
+                      style: GoogleFonts.inter(color: textColor),
                       decoration: InputDecoration(
                         hintText: 'Novo nome',
-                        hintStyle: GoogleFonts.inter(color: Colors.white54),
+                        hintStyle: GoogleFonts.inter(color: mutedColor),
                       ),
                     ),
                     actions: [
@@ -75,7 +85,7 @@ class KeyTableExpansion extends StatelessWidget {
                         onPressed: () => Navigator.pop(context),
                         child: Text(
                           'Cancelar',
-                          style: GoogleFonts.inter(color: Colors.white70),
+                          style: GoogleFonts.inter(color: mutedColor),
                         ),
                       ),
                       ElevatedButton(
@@ -87,7 +97,7 @@ class KeyTableExpansion extends StatelessWidget {
                         },
                         child: Text(
                           'OK',
-                          style: GoogleFonts.inter(color: Colors.grey.shade900),
+                          style: GoogleFonts.inter(color: theme.colorScheme.onPrimary),
                         ),
                       ),
                     ],
@@ -99,26 +109,26 @@ class KeyTableExpansion extends StatelessWidget {
               context: context,
               builder:
                   (context) => AlertDialog(
-                    backgroundColor: const Color(0xFF232323),
+                    backgroundColor: dialogBackground,
                     title: Text(
                       'Deletar Tabela',
-                      style: GoogleFonts.inter(color: Colors.red),
+                      style: GoogleFonts.inter(color: errorColor),
                     ),
                     content: Text(
                       'Tem certeza que deseja deletar esta tabela?',
-                      style: GoogleFonts.inter(color: Colors.white),
+                      style: GoogleFonts.inter(color: textColor),
                     ),
                     actions: [
                       TextButton(
                         onPressed: () => Navigator.pop(context),
                         child: Text(
                           'Cancelar',
-                          style: GoogleFonts.inter(color: Colors.white70),
+                          style: GoogleFonts.inter(color: mutedColor),
                         ),
                       ),
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
+                          backgroundColor: errorColor,
                         ),
                         onPressed: () {
                           onDeleteTable(table.id.toString());// Chamando a função de deletar
@@ -127,7 +137,7 @@ class KeyTableExpansion extends StatelessWidget {
                         },
                         child: Text(
                           'Deletar Tabela',
-                          style: GoogleFonts.inter(color: Colors.white),
+                          style: GoogleFonts.inter(color: theme.colorScheme.onPrimary),
                         ),
                       ),
                     ],
@@ -141,11 +151,11 @@ class KeyTableExpansion extends StatelessWidget {
                 value: 0,
                 child: Row(
                   children: [
-                    const Icon(Icons.edit, color: Colors.white70, size: 18),
+                    Icon(Icons.edit, color: mutedColor, size: 18),
                     const SizedBox(width: 8),
                     Text(
                       'Editar Tabela',
-                      style: GoogleFonts.inter(color: Colors.white),
+                      style: GoogleFonts.inter(color: textColor),
                     ),
                   ],
                 ),
@@ -155,11 +165,11 @@ class KeyTableExpansion extends StatelessWidget {
                 value: 1,
                 child: Row(
                   children: [
-                    const Icon(Icons.delete, color: Colors.red, size: 18),
+                    Icon(Icons.delete, color: errorColor, size: 18),
                     const SizedBox(width: 8),
                     Text(
                       'Deletar Tabela',
-                      style: GoogleFonts.inter(color: Colors.red),
+                      style: GoogleFonts.inter(color: errorColor),
                     ),
                   ],
                 ),
@@ -189,7 +199,7 @@ class KeyTableExpansion extends StatelessWidget {
                           keyName: k.name,
                           valorCobrado: k.valorCobrado,
                           modeloVeiculo: k.modeloVeiculo,
-                          cardColor: const Color(0xFF0F0F0F),
+                          cardColor: theme.cardColor,
                         ),
                       ),
                     ),

@@ -17,26 +17,32 @@ class SearchFilterBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final textColor = theme.colorScheme.onSurface;
+    final mutedColor = textColor.withOpacity(0.6);
+    final background = theme.colorScheme.surfaceVariant;
+    final menuColor = theme.colorScheme.surface;
+
     return Container(
       height: 40,
       decoration: BoxDecoration(
-        color: const Color(0xFF0F0F0F),
+        color: background,
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
         children: [
           const SizedBox(width: 8),
-          const Icon(Icons.search, color: Colors.white54, size: 20),
+          Icon(Icons.search, color: mutedColor, size: 20),
           const SizedBox(width: 8),
           Expanded(
             child: StatefulBuilder(
               builder: (context, setState) {
                 return TextField(
                   controller: controller,
-                  style: GoogleFonts.inter(color: Colors.white),
+                  style: GoogleFonts.inter(color: textColor),
                   decoration: InputDecoration(
                     hintText: 'Pesquisar items',
-                    hintStyle: GoogleFonts.inter(color: Colors.white54),
+                    hintStyle: GoogleFonts.inter(color: mutedColor),
                     border: InputBorder.none,
                     isDense: true,
                     contentPadding: const EdgeInsets.symmetric(vertical: 10),
@@ -48,7 +54,7 @@ class SearchFilterBar extends StatelessWidget {
                               onChanged('');
                               setState(() {});
                             },
-                            child: const Icon(Icons.clear, color: Colors.white54, size: 18),
+                            child: Icon(Icons.clear, color: mutedColor, size: 18),
                           )
                         : null,
                   ),
@@ -61,17 +67,17 @@ class SearchFilterBar extends StatelessWidget {
             ),
           ),
           PopupMenuButton<int>(
-            icon: const Icon(Icons.filter_list, color: Colors.white54, size: 22),
-            color: const Color(0xFF232323),
+            icon: Icon(Icons.filter_list, color: mutedColor, size: 22),
+            color: menuColor,
             onSelected: onFilterChanged,
             itemBuilder: (context) => [
               PopupMenuItem(
                 value: 0,
                 child: Row(
                   children: [
-                    const Icon(Icons.sort_by_alpha, color: Colors.white, size: 18),
+                    Icon(Icons.sort_by_alpha, color: textColor, size: 18),
                     const SizedBox(width: 8),
-                    Text('Ordem Alfabética (A-Z)', style: GoogleFonts.inter(color: Colors.white)),
+                    Text('Ordem Alfabética (A-Z)', style: GoogleFonts.inter(color: textColor)),
                   ],
                 ),
               ),
@@ -79,9 +85,9 @@ class SearchFilterBar extends StatelessWidget {
                 value: 1,
                 child: Row(
                   children: [
-                    const Icon(Icons.sort_by_alpha, color: Colors.white, size: 18),
+                    Icon(Icons.sort_by_alpha, color: textColor, size: 18),
                     const SizedBox(width: 8),
-                    Text('Ordem Alfabética (Z-A)', style: GoogleFonts.inter(color: Colors.white)),
+                    Text('Ordem Alfabética (Z-A)', style: GoogleFonts.inter(color: textColor)),
                   ],
                 ),
               ),
@@ -89,9 +95,9 @@ class SearchFilterBar extends StatelessWidget {
                 value: 2,
                 child: Row(
                   children: [
-                    const Icon(Icons.calendar_today, color: Colors.white, size: 18),
+                    Icon(Icons.calendar_today, color: textColor, size: 18),
                     const SizedBox(width: 8),
-                    Text('Mais Recentes', style: GoogleFonts.inter(color: Colors.white)),
+                    Text('Mais Recentes', style: GoogleFonts.inter(color: textColor)),
                   ],
                 ),
               ),
@@ -99,9 +105,9 @@ class SearchFilterBar extends StatelessWidget {
                 value: 3,
                 child: Row(
                   children: [
-                    const Icon(Icons.calendar_today, color: Colors.white, size: 18),
+                    Icon(Icons.calendar_today, color: textColor, size: 18),
                     const SizedBox(width: 8),
-                    Text('Mais Antigas', style: GoogleFonts.inter(color: Colors.white)),
+                    Text('Mais Antigas', style: GoogleFonts.inter(color: textColor)),
                   ],
                 ),
               ),

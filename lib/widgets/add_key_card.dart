@@ -6,19 +6,23 @@ class AddKeyCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cardColor = theme.cardColor;
+    final iconColor = theme.colorScheme.onSurface;
+
     return InkWell(
       borderRadius: BorderRadius.circular(8),
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          color: const Color(0xFF0F0F0F),
+          color: cardColor,
           borderRadius: BorderRadius.circular(8),
         ),
         padding: const EdgeInsets.all(10),
         child: SizedBox(
           height: 64,
           child: Center(
-            child: Icon(Icons.add, color: Colors.white, size: 28),
+            child: Icon(Icons.add, color: iconColor, size: 28),
           ),
         ),
       ),

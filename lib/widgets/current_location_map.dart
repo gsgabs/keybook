@@ -49,11 +49,13 @@ class _CurrentLocationMapState extends State<CurrentLocationMap> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Container(
       height: 180,
       width: double.infinity,
       decoration: BoxDecoration(
-        color: const Color(0xFF232323),
+        color: theme.cardColor,
         borderRadius: BorderRadius.circular(12),
       ),
       child: _currentLatLng == null

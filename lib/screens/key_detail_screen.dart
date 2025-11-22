@@ -59,17 +59,19 @@ class _KeyDetailScreenState extends State<KeyDetailScreen> {
   Future<void> _showImagePickerOptions() async {
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF232323),
+      backgroundColor: Theme.of(context).colorScheme.surface,
       builder: (context) {
+        final theme = Theme.of(context);
+        final textColor = theme.colorScheme.onSurface;
         return SafeArea(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
-                leading: const Icon(Icons.camera_alt, color: Colors.white),
+                leading: Icon(Icons.camera_alt, color: textColor),
                 title: Text(
                   'Tirar Foto',
-                  style: GoogleFonts.inter(color: Colors.white),
+                  style: GoogleFonts.inter(color: textColor),
                 ),
                 onTap: () async {
                   Navigator.pop(context);
@@ -82,10 +84,10 @@ class _KeyDetailScreenState extends State<KeyDetailScreen> {
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.photo_library, color: Colors.white),
+                leading: Icon(Icons.photo_library, color: textColor),
                 title: Text(
                   'Abrir Galeria',
-                  style: GoogleFonts.inter(color: Colors.white),
+                  style: GoogleFonts.inter(color: textColor),
                 ),
                 onTap: () async {
                   Navigator.pop(context);
@@ -108,27 +110,32 @@ class _KeyDetailScreenState extends State<KeyDetailScreen> {
     showDialog(
       context: context,
       builder:
-          (context) => AlertDialog(
-            backgroundColor: const Color(0xFF232323),
-            title: Text(
-              'Deletar Chave',
-              style: GoogleFonts.inter(color: Colors.red),
-            ),
-            content: Text(
-              'Tem certeza que deseja deletar esta chave?',
-              style: GoogleFonts.inter(color: Colors.white),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text(
-                  'Cancelar',
-                  style: GoogleFonts.inter(color: Colors.white70),
-                ),
+          (context) {
+            final theme = Theme.of(context);
+            final textColor = theme.colorScheme.onSurface;
+            final mutedColor = textColor.withOpacity(0.7);
+            final errorColor = theme.colorScheme.error;
+            return AlertDialog(
+              backgroundColor: theme.colorScheme.surface,
+              title: Text(
+                'Deletar Chave',
+                style: GoogleFonts.inter(color: errorColor),
               ),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                onPressed: () async {
+              content: Text(
+                'Tem certeza que deseja deletar esta chave?',
+                style: GoogleFonts.inter(color: mutedColor),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text(
+                    'Cancelar',
+                    style: GoogleFonts.inter(color: mutedColor),
+                  ),
+                ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(backgroundColor: errorColor),
+                  onPressed: () async {
                   try {
                     Navigator.pop(context);
 
@@ -148,21 +155,23 @@ class _KeyDetailScreenState extends State<KeyDetailScreen> {
                     }
                   } catch (e) {
                     ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                    final errorColor = Theme.of(context).colorScheme.error;
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text('Erro ao deletar chave: ${e.toString()}'),
-                        backgroundColor: Colors.red,
+                        backgroundColor: errorColor,
                       ),
                     );
                   }
                 },
-                child: Text(
-                  'Deletar',
-                  style: GoogleFonts.inter(color: Colors.white),
+                  child: Text(
+                    'Deletar',
+                    style: GoogleFonts.inter(color: theme.colorScheme.onPrimary),
+                  ),
                 ),
-              ),
-            ],
-          ),
+              ],
+            );
+          },
     );
   }
 
@@ -175,20 +184,24 @@ class _KeyDetailScreenState extends State<KeyDetailScreen> {
   }) {
     _controllers[label] = TextEditingController(text: value ?? '');
 
+    final theme = Theme.of(context);
+    final textColor = theme.colorScheme.onSurface;
+    final mutedColor = textColor.withOpacity(0.6);
+
     return ListTile(
-      leading: Icon(icon, color: Colors.white54, size: 20),
-      title: Text(label, style: GoogleFonts.inter(color: Colors.white)),
+      leading: Icon(icon, color: mutedColor, size: 20),
+      title: Text(label, style: GoogleFonts.inter(color: textColor)),
       trailing: SizedBox(
         width: 180,
         child:
             isMonetary
                 ? TextField(
                   controller: _controllers[label],
-                  style: GoogleFonts.inter(color: Colors.white),
+                  style: GoogleFonts.inter(color: textColor),
                   keyboardType: TextInputType.numberWithOptions(decimal: true),
                   decoration: InputDecoration(
                     hintText: '0,00',
-                    hintStyle: GoogleFonts.inter(color: Colors.white38),
+                    hintStyle: GoogleFonts.inter(color: mutedColor),
                     border: InputBorder.none,
                   ),
                   onChanged: (val) {
@@ -197,10 +210,10 @@ class _KeyDetailScreenState extends State<KeyDetailScreen> {
                 )
                 : TextField(
                   controller: _controllers[label],
-                  style: GoogleFonts.inter(color: Colors.white),
+                  style: GoogleFonts.inter(color: textColor),
                   decoration: InputDecoration(
                     hintText: 'Não informado',
-                    hintStyle: GoogleFonts.inter(color: Colors.white38),
+                    hintStyle: GoogleFonts.inter(color: mutedColor),
                     border: InputBorder.none,
                   ),
                   onChanged: (val) => _handleFieldChange(label),
@@ -217,22 +230,18 @@ class _KeyDetailScreenState extends State<KeyDetailScreen> {
     _debounce.run(() async {
       try {
         await _saveChanges();
-        // Feedback se salvou ou não, era muito chato então comentei
-        // if (mounted) {
-        //   ScaffoldMessenger.of(context).showSnackBar(
-        //     SnackBar(
-        //       content: Text('$label atualizado com sucesso'),
-        //       duration: const Duration(seconds: 1),
-        //     ),
-        //   );
-        // }
       } catch (e) {
         debugPrint('Erro ao atualizar $label: $e');
         if (mounted) {
+          final theme = Theme.of(context);
+          final errorColor = theme.colorScheme.error;
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Erro ao atualizar $label'),
-              backgroundColor: Colors.red,
+              backgroundColor: errorColor,
+              content: Text(
+                'Erro ao atualizar $label',
+                style: GoogleFonts.inter(color: theme.colorScheme.onError),
+              ),
             ),
           );
         }
@@ -318,9 +327,14 @@ class _KeyDetailScreenState extends State<KeyDetailScreen> {
   ) {
     _controllers[label] = TextEditingController(text: value ?? '');
 
+    final theme = Theme.of(context);
+    final textColor = theme.colorScheme.onSurface;
+    final mutedColor = textColor.withOpacity(0.6);
+    final fieldBackground = theme.cardColor;
+
     return ListTile(
-      leading: Icon(icon, color: Colors.white54, size: 20),
-      title: Text(label, style: GoogleFonts.inter(color: Colors.white)),
+      leading: Icon(icon, color: mutedColor, size: 20),
+      title: Text(label, style: GoogleFonts.inter(color: textColor)),
       trailing: SizedBox(
         width: 180,
         child: TypeAheadField<String>(
@@ -329,7 +343,7 @@ class _KeyDetailScreenState extends State<KeyDetailScreen> {
             return Material(
               elevation: 4.0,
               borderRadius: BorderRadius.circular(4),
-              color: Color(0xFF232323),
+              color: fieldBackground,
               child: child,
             );
           },
@@ -337,10 +351,10 @@ class _KeyDetailScreenState extends State<KeyDetailScreen> {
             return TextField(
               controller: controller,
               focusNode: focusNode,
-              style: GoogleFonts.inter(color: Colors.white),
+              style: GoogleFonts.inter(color: textColor),
               decoration: InputDecoration(
                 hintText: 'Não informado',
-                hintStyle: GoogleFonts.inter(color: Colors.white38),
+                hintStyle: GoogleFonts.inter(color: mutedColor),
                 border: InputBorder.none,
               ),
               onChanged: (val) => _handleFieldChange(label),
@@ -360,7 +374,7 @@ class _KeyDetailScreenState extends State<KeyDetailScreen> {
             return ListTile(
               title: Text(
                 suggestion,
-                style: GoogleFonts.inter(color: Colors.white),
+                style: GoogleFonts.inter(color: textColor),
               ),
             );
           },
@@ -373,7 +387,7 @@ class _KeyDetailScreenState extends State<KeyDetailScreen> {
                 padding: const EdgeInsets.all(8.0),
                 child: Text(
                   'Nenhum item encontrado',
-                  style: GoogleFonts.inter(color: Colors.white60),
+                  style: GoogleFonts.inter(color: mutedColor),
                 ),
               ),
         ),
@@ -384,23 +398,29 @@ class _KeyDetailScreenState extends State<KeyDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final textColor = colorScheme.onSurface;
+    final cardColor = theme.cardColor;
+
     return Scaffold(
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text(
           widget.keyName,
-          style: GoogleFonts.inter(color: Colors.white),
+          style: GoogleFonts.inter(color: textColor),
         ),
-        backgroundColor: const Color(0xFF232323),
-        iconTheme: const IconThemeData(color: Colors.white),
+        backgroundColor: colorScheme.surface,
+        iconTheme: IconThemeData(color: textColor),
         actions: [
           //Botão deletar chave
           IconButton(
-            icon: const Icon(Icons.delete, color: Colors.red),
+            icon: Icon(Icons.delete, color: colorScheme.error),
             onPressed: _showDeleteDialog,
           ),
           //Botão exportar página em pdf
           IconButton(
-            icon: const Icon(Icons.share, color: Colors.white),
+            icon: Icon(Icons.share, color: colorScheme.primary),
             onPressed: () async {
               final itemData = await _itemDetails;
 
@@ -445,7 +465,7 @@ class _KeyDetailScreenState extends State<KeyDetailScreen> {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text('Erro ao gerar PDF: ${e.toString()}'),
-                      backgroundColor: Colors.red,
+                      backgroundColor: colorScheme.error,
                       duration: const Duration(seconds: 3),
                     ),
                   );
@@ -455,7 +475,6 @@ class _KeyDetailScreenState extends State<KeyDetailScreen> {
           ),
         ],
       ),
-      backgroundColor: const Color(0xFF1D1D1D),
       body: FutureBuilder<Map<String, dynamic>>(
         future: _itemDetails,
         builder: (context, snapshot) {
@@ -478,13 +497,13 @@ class _KeyDetailScreenState extends State<KeyDetailScreen> {
                 onTap: _showImagePickerOptions,
                 child: Container(
                   height: 200,
-                  color: const Color(0xFF181818),
+                  color: cardColor,
                   child:
                       _image == null
                           ? Center(
                             child: Icon(
                               Icons.add_a_photo,
-                              color: Colors.white38,
+                              color: textColor.withOpacity(0.4),
                               size: 48,
                             ),
                           )
@@ -501,7 +520,7 @@ class _KeyDetailScreenState extends State<KeyDetailScreen> {
                     Text(
                       'Detalhes da Chave',
                       style: GoogleFonts.inter(
-                        color: Colors.white,
+                        color: textColor,
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
@@ -572,7 +591,7 @@ class _KeyDetailScreenState extends State<KeyDetailScreen> {
                       child: Text(
                         'Observações',
                         style: GoogleFonts.inter(
-                          color: Colors.white,
+                          color: textColor,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -581,10 +600,10 @@ class _KeyDetailScreenState extends State<KeyDetailScreen> {
                       controller:
                           _obsController..text = itemData['observacoes'] ?? '',
                       maxLines: 4,
-                      style: GoogleFonts.inter(color: Colors.white),
+                      style: GoogleFonts.inter(color: textColor),
                       decoration: InputDecoration(
                         hintText: 'Adicione observações aqui...',
-                        fillColor: const Color(0xFF232323),
+                        fillColor: cardColor,
                         filled: true,
                         border: InputBorder.none,
                       ),

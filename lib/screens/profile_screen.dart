@@ -31,37 +31,43 @@ class _ProfileScreenState extends State<ProfileScreen> {
     showDialog(
       context: context,
       builder:
-          (context) => AlertDialog(
-            backgroundColor: const Color(0xFF232323),
-            title: Text(
-              'Sair da conta?',
-              style: GoogleFonts.inter(color: Colors.white),
-            ),
-            content: Text(
-              'Tem certeza que deseja sair?',
-              style: GoogleFonts.inter(color: Colors.white70),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text(
-                  'Cancelar',
-                  style: GoogleFonts.inter(color: Colors.white70),
-                ),
+          (context) {
+            final theme = Theme.of(context);
+            final textColor = theme.colorScheme.onSurface;
+            final mutedColor = textColor.withOpacity(0.7);
+            final errorColor = theme.colorScheme.error;
+            return AlertDialog(
+              backgroundColor: theme.colorScheme.surface,
+              title: Text(
+                'Sair da conta?',
+                style: GoogleFonts.inter(color: textColor),
               ),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                onPressed: () async {
-                  Navigator.pop(context);
-                  await _performLogout(context);
-                },
-                child: Text(
-                  'Sair',
-                  style: GoogleFonts.inter(color: Colors.white),
-                ),
+              content: Text(
+                'Tem certeza que deseja sair?',
+                style: GoogleFonts.inter(color: mutedColor),
               ),
-            ],
-          ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text(
+                    'Cancelar',
+                    style: GoogleFonts.inter(color: mutedColor),
+                  ),
+                ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(backgroundColor: errorColor),
+                  onPressed: () async {
+                    Navigator.pop(context);
+                    await _performLogout(context);
+                  },
+                  child: Text(
+                    'Sair',
+                    style: GoogleFonts.inter(color: theme.colorScheme.onPrimary),
+                  ),
+                ),
+              ],
+            );
+          },
     );
   }
 
@@ -83,7 +89,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       scaffold.showSnackBar(
         SnackBar(
           content: Text('Erro ao sair: ${e.toString()}'),
-          backgroundColor: Colors.red,
+          backgroundColor: Theme.of(context).colorScheme.error,
         ),
       );
     }
@@ -92,14 +98,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final themeController = ThemeController.instance;
-    final colorScheme = Theme.of(context).colorScheme;
-    final cardColor = Theme.of(context).cardColor;
-    final textColor = colorScheme.onBackground;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final cardColor = theme.cardColor;
+    final textColor = colorScheme.onSurface;
     final mutedColor = textColor.withOpacity(0.7);
 
     return SafeArea(
       child: Scaffold(
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        backgroundColor: theme.scaffoldBackgroundColor,
         appBar: AppBar(
           title: Text(
             'Perfil',
@@ -194,8 +201,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 _ProfileActionTile(
                   icon: Icons.logout,
                   label: 'Log out',
-                  iconColor: Colors.red,
-                  textColor: Colors.red,
+                  iconColor: theme.colorScheme.error,
+                  textColor: theme.colorScheme.error,
                   backgroundColor: cardColor,
                   onTap: () => _showLogoutDialog(context),
                 ),
@@ -246,37 +253,43 @@ class _ProfileDetailsScreenState extends State<ProfileDetailsScreen> {
     showDialog(
       context: context,
       builder:
-          (context) => AlertDialog(
-            backgroundColor: const Color(0xFF232323),
-            title: Text(
-              'Deletar Conta?',
-              style: GoogleFonts.inter(color: Colors.red),
-            ),
-            content: Text(
-              'Tem certeza que deseja deletar sua conta? Esta ação não pode ser desfeita.',
-              style: GoogleFonts.inter(color: Colors.white70),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text(
-                  'Cancelar',
-                  style: GoogleFonts.inter(color: Colors.white70),
-                ),
+          (context) {
+            final theme = Theme.of(context);
+            final textColor = theme.colorScheme.onSurface;
+            final mutedColor = textColor.withOpacity(0.7);
+            final errorColor = theme.colorScheme.error;
+            return AlertDialog(
+              backgroundColor: theme.colorScheme.surface,
+              title: Text(
+                'Deletar Conta?',
+                style: GoogleFonts.inter(color: errorColor),
               ),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                onPressed: () async {
-                  Navigator.pop(context);
-                  await _performAccountDeletion(context);
-                },
-                child: Text(
-                  'Deletar',
-                  style: GoogleFonts.inter(color: Colors.white),
-                ),
+              content: Text(
+                'Tem certeza que deseja deletar sua conta? Esta ação não pode ser desfeita.',
+                style: GoogleFonts.inter(color: mutedColor),
               ),
-            ],
-          ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text(
+                    'Cancelar',
+                    style: GoogleFonts.inter(color: mutedColor),
+                  ),
+                ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(backgroundColor: errorColor),
+                  onPressed: () async {
+                    Navigator.pop(context);
+                    await _performAccountDeletion(context);
+                  },
+                  child: Text(
+                    'Deletar',
+                    style: GoogleFonts.inter(color: theme.colorScheme.onPrimary),
+                  ),
+                ),
+              ],
+            );
+          },
     );
   }
 
@@ -293,9 +306,9 @@ class _ProfileDetailsScreenState extends State<ProfileDetailsScreen> {
 
       scaffold.hideCurrentSnackBar();
       scaffold.showSnackBar(
-        const SnackBar(
-          content: Text('Conta deletada com sucesso'),
-          backgroundColor: Colors.green,
+        SnackBar(
+          content: const Text('Conta deletada com sucesso'),
+          backgroundColor: Theme.of(context).colorScheme.secondary,
         ),
       );
 
@@ -305,7 +318,7 @@ class _ProfileDetailsScreenState extends State<ProfileDetailsScreen> {
       scaffold.showSnackBar(
         SnackBar(
           content: Text('Erro ao deletar conta: ${e.toString()}'),
-          backgroundColor: Colors.red,
+          backgroundColor: Theme.of(context).colorScheme.error,
         ),
       );
     }
@@ -329,9 +342,9 @@ class _ProfileDetailsScreenState extends State<ProfileDetailsScreen> {
       if (emailController.text != widget.userData['email']) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Email alterado! Faça login novamente.'),
-              backgroundColor: Colors.orange,
+            SnackBar(
+              content: const Text('Email alterado! Faça login novamente.'),
+              backgroundColor: Theme.of(context).colorScheme.tertiary,
             ),
           );
           await AuthService.logout();
@@ -345,9 +358,9 @@ class _ProfileDetailsScreenState extends State<ProfileDetailsScreen> {
         final updatedUser = await AuthService.getUserDetails();
 
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Perfil atualizado com sucesso!'),
-            backgroundColor: Colors.green,
+          SnackBar(
+            content: const Text('Perfil atualizado com sucesso!'),
+            backgroundColor: Theme.of(context).colorScheme.secondary,
           ),
         );
 
@@ -359,7 +372,7 @@ class _ProfileDetailsScreenState extends State<ProfileDetailsScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Erro ao atualizar: ${e.toString()}'),
-            backgroundColor: Colors.red,
+            backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
       }
@@ -372,13 +385,21 @@ class _ProfileDetailsScreenState extends State<ProfileDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final textColor = theme.colorScheme.onSurface;
+    final mutedColor = textColor.withOpacity(0.7);
+    final cardColor = theme.cardColor;
+    final accentColor = theme.colorScheme.primary;
+    final borderColor = theme.dividerColor;
+    final errorColor = theme.colorScheme.error;
+
     return SafeArea(
       child: Scaffold(
-        backgroundColor: const Color(0xFF181818),
+        backgroundColor: theme.scaffoldBackgroundColor,
         appBar: AppBar(
-          backgroundColor: const Color(0xFF181818),
+          backgroundColor: theme.scaffoldBackgroundColor,
           elevation: 0,
-          iconTheme: const IconThemeData(color: Colors.white),
+          iconTheme: IconThemeData(color: textColor),
           actions: [
             TextButton(
               onPressed: _isSaving ? null : _saveChanges,
@@ -388,7 +409,7 @@ class _ProfileDetailsScreenState extends State<ProfileDetailsScreen> {
                       : Text(
                         'Salvar',
                         style: GoogleFonts.inter(
-                          color: Colors.blue,
+                          color: accentColor,
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
                         ),
@@ -405,14 +426,14 @@ class _ProfileDetailsScreenState extends State<ProfileDetailsScreen> {
               child: Container(
                 width: 110,
                 height: 110,
-                decoration: const BoxDecoration(
-                  color: Color(0xFF232323),
+                decoration: BoxDecoration(
+                  color: cardColor,
                   shape: BoxShape.circle,
                 ),
-                child: const Center(
+                child: Center(
                   child: Icon(
                     Icons.person,
-                    color: Colors.white38,
+                    color: mutedColor,
                     size: 50,
                   ),
                 ),
@@ -421,52 +442,52 @@ class _ProfileDetailsScreenState extends State<ProfileDetailsScreen> {
             const SizedBox(height: 24),
             TextField(
               controller: usernameController,
-              style: GoogleFonts.inter(color: Colors.white),
+              style: GoogleFonts.inter(color: textColor),
               decoration: InputDecoration(
                 labelText: 'Nome de usuário',
-                labelStyle: GoogleFonts.inter(color: Colors.white70),
-                border: const UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.blue, width: 1.5),
+                labelStyle: GoogleFonts.inter(color: mutedColor),
+                border: UnderlineInputBorder(
+                  borderSide: BorderSide(color: borderColor, width: 1.5),
                 ),
-                focusedBorder: const UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.blue, width: 1.5),
+                focusedBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(color: accentColor, width: 1.5),
                 ),
               ),
             ),
             const SizedBox(height: 18),
             TextField(
               controller: emailController,
-              style: GoogleFonts.inter(color: Colors.white),
+              style: GoogleFonts.inter(color: textColor),
               keyboardType: TextInputType.emailAddress,
               decoration: InputDecoration(
                 labelText: 'Email',
-                labelStyle: GoogleFonts.inter(color: Colors.white70),
-                border: const UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.blue, width: 1.5),
+                labelStyle: GoogleFonts.inter(color: mutedColor),
+                border: UnderlineInputBorder(
+                  borderSide: BorderSide(color: borderColor, width: 1.5),
                 ),
-                focusedBorder: const UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.blue, width: 1.5),
+                focusedBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(color: accentColor, width: 1.5),
                 ),
               ),
             ),
             const SizedBox(height: 18),
             TextField(
               controller: passwordController,
-              style: GoogleFonts.inter(color: Colors.white),
+              style: GoogleFonts.inter(color: textColor),
               obscureText: !isEditingPassword,
               decoration: InputDecoration(
                 labelText: 'Senha',
-                labelStyle: GoogleFonts.inter(color: Colors.white70),
-                border: const UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.blue, width: 1.5),
+                labelStyle: GoogleFonts.inter(color: mutedColor),
+                border: UnderlineInputBorder(
+                  borderSide: BorderSide(color: borderColor, width: 1.5),
                 ),
-                focusedBorder: const UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.blue, width: 1.5),
+                focusedBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(color: accentColor, width: 1.5),
                 ),
                 suffixIcon: IconButton(
                   icon: Icon(
                     isEditingPassword ? Icons.visibility : Icons.visibility_off,
-                    color: Colors.white54,
+                    color: mutedColor,
                   ),
                   onPressed: () {
                     setState(() {
@@ -494,16 +515,19 @@ class _ProfileDetailsScreenState extends State<ProfileDetailsScreen> {
             const SizedBox(height: 32),
             ElevatedButton.icon(
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
+                backgroundColor: errorColor,
                 minimumSize: const Size.fromHeight(48),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
               ),
-              icon: const Icon(Icons.delete, color: Colors.white),
+              icon: Icon(Icons.delete, color: theme.colorScheme.onPrimary),
               label: Text(
                 'Deletar Conta',
-                style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.bold),
+                style: GoogleFonts.inter(
+                  color: theme.colorScheme.onPrimary,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               onPressed: _showDeleteAccountDialog,
             ),
@@ -536,7 +560,6 @@ class _ProfileActionTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(16),

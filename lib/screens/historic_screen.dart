@@ -6,9 +6,14 @@ class HistoricScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final textColor = theme.colorScheme.onSurface;
+    final mutedColor = textColor.withOpacity(0.6);
+    final cardColor = theme.cardColor;
+
     return SafeArea(
       child: Scaffold(
-        backgroundColor: const Color(0xFF181818),
+        backgroundColor: theme.scaffoldBackgroundColor,
         body: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
           child: Column(
@@ -17,7 +22,7 @@ class HistoricScreen extends StatelessWidget {
               Text(
                 'Histórico',
                 style: GoogleFonts.inter(
-                  color: Colors.white,
+                  color: textColor,
                   fontWeight: FontWeight.bold,
                   fontSize: 17,
                 ),
@@ -30,7 +35,7 @@ class HistoricScreen extends StatelessWidget {
                   width: double.infinity,
                   height: 160,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF232323),
+                    color: cardColor,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   padding: const EdgeInsets.all(18),
@@ -41,7 +46,7 @@ class HistoricScreen extends StatelessWidget {
                       Text(
                         'Histórico de Exportações',
                         style: GoogleFonts.inter(
-                          color: Colors.white,
+                          color: textColor,
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
                         ),
@@ -53,7 +58,7 @@ class HistoricScreen extends StatelessWidget {
                           child: Text(
                             'Nenhum PDF exportado ainda.',
                             style: GoogleFonts.inter(
-                              color: Colors.white54,
+                              color: mutedColor,
                               fontSize: 14,
                             ),
                           ),
@@ -76,7 +81,7 @@ class HistoricScreen extends StatelessWidget {
                   width: double.infinity,
                   height: 160,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF232323),
+                    color: cardColor,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   padding: const EdgeInsets.all(18),
@@ -87,7 +92,7 @@ class HistoricScreen extends StatelessWidget {
                       Text(
                         'Modificações em Chaves',
                         style: GoogleFonts.inter(
-                          color: Colors.white,
+                          color: textColor,
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
                         ),
@@ -99,7 +104,7 @@ class HistoricScreen extends StatelessWidget {
                           child: Text(
                             'Nenhuma modificação recente.',
                             style: GoogleFonts.inter(
-                              color: Colors.white54,
+                              color: mutedColor,
                               fontSize: 14,
                             ),
                           ),

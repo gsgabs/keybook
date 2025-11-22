@@ -205,29 +205,37 @@ class _KeyListScreenState extends State<KeyListScreen> {
     showDialog(
       context: context,
       builder:
-          (context) => AlertDialog(
-            backgroundColor: const Color(0xFF232323),
-            title: Text(
-              'Nova chave',
-              style: GoogleFonts.inter(color: Colors.white),
-            ),
-            content: TextField(
-              controller: _keynamecontroller,
-              style: GoogleFonts.inter(color: Colors.white),
-              decoration: InputDecoration(
-                hintText: 'Nome da chave',
-                hintStyle: GoogleFonts.inter(color: Colors.white54),
+          (context) {
+            final theme = Theme.of(context);
+            final textColor = theme.colorScheme.onSurface;
+            final mutedColor = textColor.withOpacity(0.7);
+            return AlertDialog(
+              backgroundColor: theme.colorScheme.surface,
+              title: Text(
+                'Nova chave',
+                style: GoogleFonts.inter(color: textColor),
               ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text(
-                  'Cancelar',
-                  style: GoogleFonts.inter(color: Colors.white70),
+              content: TextField(
+                controller: _keynamecontroller,
+                style: GoogleFonts.inter(color: textColor),
+                decoration: InputDecoration(
+                  hintText: 'Nome da chave',
+                  hintStyle: GoogleFonts.inter(color: mutedColor),
                 ),
               ),
-              ElevatedButton(
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text(
+                    'Cancelar',
+                    style: GoogleFonts.inter(color: mutedColor),
+                  ),
+                ),
+                ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: theme.colorScheme.primary,
+                  foregroundColor: theme.colorScheme.onPrimary,
+                ),
                 onPressed: () async {
                   if (_keynamecontroller.text.trim().isNotEmpty) {
                     try {
@@ -272,13 +280,14 @@ class _KeyListScreenState extends State<KeyListScreen> {
                     }
                   }
                 },
-                child: Text(
-                  'OK',
-                  style: GoogleFonts.inter(color: Colors.grey.shade900),
+                  child: Text(
+                    'OK',
+                    style: GoogleFonts.inter(color: theme.colorScheme.onPrimary),
+                  ),
                 ),
-              ),
-            ],
-          ),
+              ],
+            );
+          },
     );
   }
 
@@ -295,10 +304,11 @@ class _KeyListScreenState extends State<KeyListScreen> {
 
     // Se deletou, mostra feedback visual
     if (result == true) {
+      final successColor = Theme.of(context).colorScheme.primary;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Chave deletada com sucesso'),
-          backgroundColor: Colors.green,
+        SnackBar(
+          content: const Text('Chave deletada com sucesso'),
+          backgroundColor: successColor,
         ),
       );
     }
@@ -358,6 +368,11 @@ class _KeyListScreenState extends State<KeyListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final textColor = theme.colorScheme.onSurface;
+    final mutedColor = textColor.withOpacity(0.65);
+    final cardColor = theme.cardColor;
+
     return SafeArea(
       child: Scaffold(
         appBar: null,
@@ -369,7 +384,7 @@ class _KeyListScreenState extends State<KeyListScreen> {
               Text(
                 'Lista de Chaves',
                 style: GoogleFonts.inter(
-                  color: Colors.white,
+                  color: textColor,
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
                 ),
@@ -385,37 +400,38 @@ class _KeyListScreenState extends State<KeyListScreen> {
                     (value) => setState(() => _filterOption = value),
               ),
               // SUGESTÕES DE CHAVES (AUTOCOMPLETE)
-              if (keySuggestions.isNotEmpty)
-                Container(
-                  margin: const EdgeInsets.only(top: 8, bottom: 8),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF232323),
-                    borderRadius: BorderRadius.circular(8),
+                if (keySuggestions.isNotEmpty)
+                  Container(
+                    margin: const EdgeInsets.only(top: 8, bottom: 8),
+                    decoration: BoxDecoration(
+                      color: cardColor,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: ListView.separated(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: keySuggestions.length,
+                      separatorBuilder: (_, __) => Divider(height: 1, color: theme.dividerColor),
+                      itemBuilder: (context, i) {
+                        final suggestion = keySuggestions[i];
+                        return ListTile(
+                          leading: Icon(Icons.vpn_key, color: mutedColor),
+                          title: Text(
+                            suggestion.key.name,
+                            style: GoogleFonts.inter(color: textColor),
+                          ),
+                          subtitle: Text(
+                            suggestion.table.name,
+                            style: GoogleFonts.inter(color: mutedColor, fontSize: 13),
+                          ),
+                          onTap: () {
+                            searchController.text = suggestion.key.name;
+                            setState(() {});
+                          },
+                        );
+                      },
+                    ),
                   ),
-                  child: ListView.separated(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: keySuggestions.length,
-                    separatorBuilder: (_, __) => const Divider(height: 1, color: Colors.white12),
-                    itemBuilder: (context, i) {
-                      final suggestion = keySuggestions[i];
-                      return ListTile(
-                        leading: const Icon(Icons.vpn_key, color: Colors.white54),
-                        title: Text(
-                          suggestion.key.name,
-                          style: GoogleFonts.inter(color: Colors.white),
-                        ),
-                        subtitle: Text(
-                          'Tabela: ${suggestion.table.name}',
-                          style: GoogleFonts.inter(color: Colors.white54, fontSize: 13),
-                        ),
-                        onTap: () {
-                          onKeyTap(suggestion.key);
-                        },
-                      );
-                    },
-                  ),
-                ),
               const SizedBox(height: 16),
               Expanded(
                 child: keySuggestions.isNotEmpty

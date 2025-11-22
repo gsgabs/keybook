@@ -3,26 +3,32 @@ import 'package:flutter/material.dart';
 class CustomBottomNavBar extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int> onTap;
-  final List<Color> selectedColors;
+  final List<Color>? selectedColors;
 
   const CustomBottomNavBar({
     super.key,
     required this.currentIndex,
     required this.onTap,
-    this.selectedColors = const [
-      Colors.white, // Home
-      Colors.white, // Tabelas
-      Colors.white, // Criar
-      Colors.white, // Buscar
-    ],
+    this.selectedColors,
   });
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final bottomNavTheme = theme.bottomNavigationBarTheme;
+    final resolvedSelectedColor =
+        (selectedColors != null && selectedColors!.length > currentIndex)
+            ? selectedColors![currentIndex]
+            : bottomNavTheme.selectedItemColor ?? theme.colorScheme.primary;
+    final resolvedUnselectedColor =
+        bottomNavTheme.unselectedItemColor ?? theme.colorScheme.onSurface.withOpacity(0.6);
+    final resolvedBackgroundColor =
+        bottomNavTheme.backgroundColor ?? theme.colorScheme.surface;
+
     return BottomNavigationBar(
-      backgroundColor: const Color(0xFF181818),
-      selectedItemColor: selectedColors[currentIndex],
-      unselectedItemColor: Colors.white54,
+      backgroundColor: resolvedBackgroundColor,
+      selectedItemColor: resolvedSelectedColor,
+      unselectedItemColor: resolvedUnselectedColor,
       showSelectedLabels: false,
       showUnselectedLabels: false,
       type: BottomNavigationBarType.fixed,

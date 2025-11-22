@@ -3,7 +3,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../service/history_service.dart';
 
-// MUDANÇA AQUI: De HistoryScreen para HistoricScreen
 class HistoricScreen extends StatefulWidget {
   const HistoricScreen({super.key});
 
@@ -34,6 +33,48 @@ class _HistoricScreenState extends State<HistoricScreen> {
       return DateFormat('dd/MM/yyyy HH:mm').format(date);
     } catch (e) {
       return dateString;
+    }
+  }
+
+  Widget _getIconForType(String type, ColorScheme colors) {
+    switch (type) {
+      case 'CRIACAO':
+        return Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: Colors.green.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(Icons.add_circle_outline, color: Colors.green),
+        );
+      case 'REMOCAO':
+        return Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: Colors.red.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(Icons.delete_outline, color: Colors.red),
+        );
+      case 'EDICAO':
+        return Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: Colors.orange.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(Icons.edit_note, color: Colors.orange),
+        );
+      case 'EXPORTACAO_PDF':
+      default:
+        return Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: colors.primary.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(Icons.picture_as_pdf, color: colors.primary),
+        );
     }
   }
 
@@ -79,7 +120,7 @@ class _HistoricScreenState extends State<HistoricScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'Últimas Exportações',
+                            'Últimos Eventos',
                             style: GoogleFonts.inter(
                               color: textColor,
                               fontWeight: FontWeight.bold,
@@ -126,7 +167,7 @@ class _HistoricScreenState extends State<HistoricScreen> {
                             if (lista.isEmpty) {
                               return Center(
                                 child: Text(
-                                  'Nenhum PDF exportado ainda.',
+                                  'Nenhum evento registrado ainda.',
                                   style: GoogleFonts.inter(
                                     color: mutedColor,
                                     fontSize: 14,
@@ -143,23 +184,17 @@ class _HistoricScreenState extends State<HistoricScreen> {
                                   ),
                               itemBuilder: (context, index) {
                                 final item = lista[index];
+                                final tipo =
+                                    item['tipoEvento'] ??
+                                    'OUTRO'; // Campo novo vindo do DTO
+                                final descricao = item['descricao'] ?? '';
+
                                 return ListTile(
                                   contentPadding: EdgeInsets.zero,
-                                  leading: Container(
-                                    padding: const EdgeInsets.all(8),
-                                    decoration: BoxDecoration(
-                                      color: colorScheme.primary.withOpacity(
-                                        0.1,
-                                      ),
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: Icon(
-                                      Icons.picture_as_pdf,
-                                      color: colorScheme.primary,
-                                    ),
-                                  ),
+                                  // Usa a função para o ícone
+                                  leading: _getIconForType(tipo, colorScheme),
                                   title: Text(
-                                    item['nomeItem'] ?? 'Chave Desconhecida',
+                                    item['nomeItem'] ?? 'Item Desconhecido',
                                     style: GoogleFonts.inter(
                                       color: textColor,
                                       fontWeight: FontWeight.w600,
@@ -170,19 +205,22 @@ class _HistoricScreenState extends State<HistoricScreen> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        item['nomeArquivo'] ?? '',
+                                        descricao,
+                                        // Mostra "Chave criada" ou "PDF Gerado: ..."
                                         style: GoogleFonts.inter(
                                           color: mutedColor,
                                           fontSize: 12,
                                         ),
-                                        maxLines: 1,
+                                        maxLines: 2,
                                         overflow: TextOverflow.ellipsis,
                                       ),
+                                      const SizedBox(height: 2),
                                       Text(
-                                        _formatDate(item['dataExportacao']),
+                                        _formatDate(item['dataHora']),
+                                        // Campo renomeado no DTO
                                         style: GoogleFonts.inter(
                                           color: mutedColor,
-                                          fontSize: 12,
+                                          fontSize: 10,
                                         ),
                                       ),
                                     ],

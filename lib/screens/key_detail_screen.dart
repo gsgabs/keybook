@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import '../service/item_service.dart';
 import '../service/pdf_export_service.dart';
+import '../service/history_service.dart';
 
 class Debouncer {
   final int milliseconds;
@@ -109,69 +110,68 @@ class _KeyDetailScreenState extends State<KeyDetailScreen> {
   void _showDeleteDialog() {
     showDialog(
       context: context,
-      builder:
-          (context) {
-            final theme = Theme.of(context);
-            final textColor = theme.colorScheme.onSurface;
-            final mutedColor = textColor.withOpacity(0.7);
-            final errorColor = theme.colorScheme.error;
-            return AlertDialog(
-              backgroundColor: theme.colorScheme.surface,
-              title: Text(
-                'Deletar Chave',
-                style: GoogleFonts.inter(color: errorColor),
-              ),
-              content: Text(
-                'Tem certeza que deseja deletar esta chave?',
+      builder: (context) {
+        final theme = Theme.of(context);
+        final textColor = theme.colorScheme.onSurface;
+        final mutedColor = textColor.withOpacity(0.7);
+        final errorColor = theme.colorScheme.error;
+        return AlertDialog(
+          backgroundColor: theme.colorScheme.surface,
+          title: Text(
+            'Deletar Chave',
+            style: GoogleFonts.inter(color: errorColor),
+          ),
+          content: Text(
+            'Tem certeza que deseja deletar esta chave?',
+            style: GoogleFonts.inter(color: mutedColor),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(
+                'Cancelar',
                 style: GoogleFonts.inter(color: mutedColor),
               ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text(
-                    'Cancelar',
-                    style: GoogleFonts.inter(color: mutedColor),
-                  ),
-                ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(backgroundColor: errorColor),
-                  onPressed: () async {
-                  try {
-                    Navigator.pop(context);
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: errorColor),
+              onPressed: () async {
+                try {
+                  Navigator.pop(context);
 
-                    // Mostra feedback visual
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Deletando chave...')),
-                    );
+                  // Mostra feedback visual
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Deletando chave...')),
+                  );
 
-                    await ItemService().deleteItem(widget.itemId);
+                  await ItemService().deleteItem(widget.itemId);
 
-                    // Remove o feedback visual
-                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                  // Remove o feedback visual
+                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
 
-                    // Retorna indicando que o item foi deletado
-                    if (mounted) {
-                      Navigator.pop(context, true);
-                    }
-                  } catch (e) {
-                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                    final errorColor = Theme.of(context).colorScheme.error;
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Erro ao deletar chave: ${e.toString()}'),
-                        backgroundColor: errorColor,
-                      ),
-                    );
+                  // Retorna indicando que o item foi deletado
+                  if (mounted) {
+                    Navigator.pop(context, true);
                   }
-                },
-                  child: Text(
-                    'Deletar',
-                    style: GoogleFonts.inter(color: theme.colorScheme.onPrimary),
-                  ),
-                ),
-              ],
-            );
-          },
+                } catch (e) {
+                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                  final errorColor = Theme.of(context).colorScheme.error;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Erro ao deletar chave: ${e.toString()}'),
+                      backgroundColor: errorColor,
+                    ),
+                  );
+                }
+              },
+              child: Text(
+                'Deletar',
+                style: GoogleFonts.inter(color: theme.colorScheme.onPrimary),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -406,10 +406,7 @@ class _KeyDetailScreenState extends State<KeyDetailScreen> {
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        title: Text(
-          widget.keyName,
-          style: GoogleFonts.inter(color: textColor),
-        ),
+        title: Text(widget.keyName, style: GoogleFonts.inter(color: textColor)),
         backgroundColor: colorScheme.surface,
         iconTheme: IconThemeData(color: textColor),
         actions: [
@@ -446,16 +443,26 @@ class _KeyDetailScreenState extends State<KeyDetailScreen> {
                   'Observações': itemData['observacoes'],
                 };
 
+                // 1. GERA O PDF
                 await PdfExportService.exportKeyDetailsToPdf(
                   context: context,
                   keyName: widget.keyName,
                   keyDetails: processedData,
                 );
 
+                // --- NOVO CÓDIGO AQUI ---
+                // 2. AVISA O BACKEND
+                final nomeArquivo = 'detalhes_chave_${widget.keyName}.pdf';
+                await HistoryService().registerExport(
+                  widget.itemId,
+                  nomeArquivo,
+                );
+                // ------------------------
+
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('PDF gerado com sucesso!'),
+                      content: Text('PDF gerado e salvo no histórico!'),
                       duration: Duration(seconds: 2),
                     ),
                   );

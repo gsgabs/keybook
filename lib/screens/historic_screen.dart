@@ -1,13 +1,47 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
+import '../service/history_service.dart';
 
-class HistoricScreen extends StatelessWidget {
+// MUDANÇA AQUI: De HistoryScreen para HistoricScreen
+class HistoricScreen extends StatefulWidget {
   const HistoricScreen({super.key});
+
+  @override
+  State<HistoricScreen> createState() => _HistoricScreenState();
+}
+
+// MUDANÇA AQUI: De _HistoryScreenState para _HistoricScreenState
+class _HistoricScreenState extends State<HistoricScreen> {
+  late Future<List<dynamic>> _historyFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _refreshHistory();
+  }
+
+  void _refreshHistory() {
+    setState(() {
+      _historyFuture = HistoryService().getHistory();
+    });
+  }
+
+  String _formatDate(String? dateString) {
+    if (dateString == null) return '';
+    try {
+      final date = DateTime.parse(dateString);
+      return DateFormat('dd/MM/yyyy HH:mm').format(date);
+    } catch (e) {
+      return dateString;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final textColor = theme.colorScheme.onSurface;
+    final colorScheme = theme.colorScheme;
+    final textColor = colorScheme.onSurface;
     final mutedColor = textColor.withOpacity(0.6);
     final cardColor = theme.cardColor;
 
@@ -28,90 +62,137 @@ class HistoricScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              // Histórico de exportações (PDFs)
-              GestureDetector(
-                onTap: () {},
+
+              // Container Principal
+              Expanded(
                 child: Container(
                   width: double.infinity,
-                  height: 160,
                   decoration: BoxDecoration(
                     color: cardColor,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   padding: const EdgeInsets.all(18),
-                  alignment: Alignment.topLeft,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Histórico de Exportações',
-                        style: GoogleFonts.inter(
-                          color: textColor,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      // Aqui vai a lista de PDFs exportados do backend
-                      Expanded(
-                        child: Center(
-                          child: Text(
-                            'Nenhum PDF exportado ainda.',
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Últimas Exportações',
                             style: GoogleFonts.inter(
-                              color: mutedColor,
-                              fontSize: 14,
+                              color: textColor,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
                             ),
                           ),
-                        ),
-                      ),
-                      // Exemplo: ListView.builder para mostrar arquivos futuramente
-                      // TODO: Substituir pelo conteúdo real do backend
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 24),
-              // Modificações em Chaves
-              GestureDetector(
-                onTap: () {
-                  // TODO: Implementar navegação para histórico de modificações em chaves
-                  // Aqui você vai mostrar as últimas chaves modificadas do backend
-                },
-                child: Container(
-                  width: double.infinity,
-                  height: 160,
-                  decoration: BoxDecoration(
-                    color: cardColor,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  padding: const EdgeInsets.all(18),
-                  alignment: Alignment.topLeft,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Modificações em Chaves',
-                        style: GoogleFonts.inter(
-                          color: textColor,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
+                          IconButton(
+                            icon: Icon(
+                              Icons.refresh,
+                              color: colorScheme.primary,
+                            ),
+                            onPressed: _refreshHistory,
+                            tooltip: "Atualizar",
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 12),
-                      // Aqui vai a lista de modificações de chaves do backend
+
+                      // Lista Dinâmica
                       Expanded(
-                        child: Center(
-                          child: Text(
-                            'Nenhuma modificação recente.',
-                            style: GoogleFonts.inter(
-                              color: mutedColor,
-                              fontSize: 14,
-                            ),
-                          ),
+                        child: FutureBuilder<List<dynamic>>(
+                          future: _historyFuture,
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return const Center(
+                                child: CircularProgressIndicator(),
+                              );
+                            }
+
+                            if (snapshot.hasError) {
+                              return Center(
+                                child: Text(
+                                  'Erro ao carregar histórico.',
+                                  style: GoogleFonts.inter(
+                                    color: colorScheme.error,
+                                  ),
+                                ),
+                              );
+                            }
+
+                            final lista = snapshot.data ?? [];
+
+                            if (lista.isEmpty) {
+                              return Center(
+                                child: Text(
+                                  'Nenhum PDF exportado ainda.',
+                                  style: GoogleFonts.inter(
+                                    color: mutedColor,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              );
+                            }
+
+                            return ListView.separated(
+                              itemCount: lista.length,
+                              separatorBuilder:
+                                  (ctx, i) => Divider(
+                                    color: mutedColor.withOpacity(0.2),
+                                  ),
+                              itemBuilder: (context, index) {
+                                final item = lista[index];
+                                return ListTile(
+                                  contentPadding: EdgeInsets.zero,
+                                  leading: Container(
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                      color: colorScheme.primary.withOpacity(
+                                        0.1,
+                                      ),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Icon(
+                                      Icons.picture_as_pdf,
+                                      color: colorScheme.primary,
+                                    ),
+                                  ),
+                                  title: Text(
+                                    item['nomeItem'] ?? 'Chave Desconhecida',
+                                    style: GoogleFonts.inter(
+                                      color: textColor,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  subtitle: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        item['nomeArquivo'] ?? '',
+                                        style: GoogleFonts.inter(
+                                          color: mutedColor,
+                                          fontSize: 12,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      Text(
+                                        _formatDate(item['dataExportacao']),
+                                        style: GoogleFonts.inter(
+                                          color: mutedColor,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            );
+                          },
                         ),
                       ),
-                      // Exemplo: ListView.builder para mostrar modificações futuramente
-                      // TODO: Substituir pelo conteúdo real do backend
                     ],
                   ),
                 ),

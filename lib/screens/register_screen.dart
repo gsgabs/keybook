@@ -16,6 +16,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _confirmPasswordController = TextEditingController();
   final _nameController = TextEditingController();
 
+  // NOVO: Variáveis para controlar visibilidade (independentes)
+  bool _isPasswordVisible = false;
+  bool _isConfirmPasswordVisible = false;
+
   @override
   void dispose() {
     _emailController.dispose();
@@ -101,22 +105,54 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     label: 'Email',
                     validator:
                         (value) =>
-                    !value!.contains('@') ? 'Email inválido' : null,
+                            !value!.contains('@') ? 'Email inválido' : null,
                   ),
                   const SizedBox(height: 18),
+
+                  // ATUALIZADO: Campo de Senha
                   _buildTextField(
                     controller: _passwordController,
                     label: 'Senha',
-                    obscureText: true,
+                    obscureText: !_isPasswordVisible,
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _isPasswordVisible
+                            ? Icons.visibility
+                            : Icons.visibility_off,
+                        color: textColor.withOpacity(0.6),
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _isPasswordVisible = !_isPasswordVisible;
+                        });
+                      },
+                    ),
                     validator:
                         (value) =>
-                    value!.length < 6 ? 'Mínimo 6 caracteres' : null,
+                            value!.length < 6 ? 'Mínimo 6 caracteres' : null,
                   ),
+
                   const SizedBox(height: 18),
+
+                  // ATUALIZADO: Campo de Confirmar Senha
                   _buildTextField(
                     controller: _confirmPasswordController,
                     label: 'Confirmar Senha',
-                    obscureText: true,
+                    obscureText: !_isConfirmPasswordVisible,
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _isConfirmPasswordVisible
+                            ? Icons.visibility
+                            : Icons.visibility_off,
+                        color: textColor.withOpacity(0.6),
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _isConfirmPasswordVisible =
+                              !_isConfirmPasswordVisible;
+                        });
+                      },
+                    ),
                     validator: (value) {
                       if (value!.isEmpty) {
                         return 'Confirme sua senha';
@@ -127,6 +163,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       return null;
                     },
                   ),
+
                   const SizedBox(height: 28),
                   SizedBox(
                     width: double.infinity,
@@ -168,11 +205,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
+  // ATUALIZADO: Adicionado parâmetro opcional `suffixIcon`
   Widget _buildTextField({
     required TextEditingController controller,
     required String label,
     bool obscureText = false,
     String? Function(String?)? validator,
+    Widget? suffixIcon, // Parâmetro novo
   }) {
     return TextFormField(
       controller: controller,
@@ -189,6 +228,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         focusedBorder: UnderlineInputBorder(
           borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),
         ),
+        suffixIcon: suffixIcon, // Usando o parâmetro
       ),
       validator: validator,
     );

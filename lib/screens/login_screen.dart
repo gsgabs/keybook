@@ -16,6 +16,9 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
   bool _rememberMe = false;
 
+  // NOVO: Variável para controlar a visibilidade da senha
+  bool _isPasswordVisible = false;
+
   @override
   void initState() {
     super.initState();
@@ -51,7 +54,9 @@ class _LoginScreenState extends State<LoginScreen> {
       }
 
       await AuthService.clearUserCache();
-      Navigator.pushReplacementNamed(context, '/home');
+      if (mounted) {
+        Navigator.pushReplacementNamed(context, '/home');
+      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(
@@ -65,8 +70,9 @@ class _LoginScreenState extends State<LoginScreen> {
     final errorStr = error.toString();
     if (errorStr.contains('401')) return 'Email ou senha incorretos';
     if (errorStr.contains('timeout')) return 'Tempo de conexão esgotado';
-    if (errorStr.contains('Network is unreachable'))
+    if (errorStr.contains('Network is unreachable')) {
       return 'Sem conexão com a internet';
+    }
     return 'Erro ao fazer login';
   }
 
@@ -105,13 +111,30 @@ class _LoginScreenState extends State<LoginScreen> {
                         (value) => value!.isEmpty ? 'Digite seu email' : null,
                   ),
                   const SizedBox(height: 18),
+
+                  // ATUALIZADO: Campo de senha com toggle
                   _buildTextField(
                     controller: _passwordController,
                     label: 'Senha',
-                    obscureText: true,
+                    obscureText: !_isPasswordVisible,
+                    // Inverte a lógica
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _isPasswordVisible
+                            ? Icons.visibility
+                            : Icons.visibility_off,
+                        color: textColor.withOpacity(0.6),
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _isPasswordVisible = !_isPasswordVisible;
+                        });
+                      },
+                    ),
                     validator:
                         (value) => value!.isEmpty ? 'Digite sua senha' : null,
                   ),
+
                   const SizedBox(height: 12),
                   Row(
                     children: [
@@ -142,11 +165,13 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
+  // ATUALIZADO: Adicionado parâmetro opcional `suffixIcon`
   Widget _buildTextField({
     required TextEditingController controller,
     required String label,
     bool obscureText = false,
     String? Function(String?)? validator,
+    Widget? suffixIcon, // Parâmetro novo
   }) {
     return TextFormField(
       controller: controller,
@@ -163,6 +188,7 @@ class _LoginScreenState extends State<LoginScreen> {
         focusedBorder: UnderlineInputBorder(
           borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),
         ),
+        suffixIcon: suffixIcon, // Usando o parâmetro
       ),
       validator: validator,
     );

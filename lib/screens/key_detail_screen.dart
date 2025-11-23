@@ -136,32 +136,40 @@ class _KeyDetailScreenState extends State<KeyDetailScreen> {
             ElevatedButton(
               style: ElevatedButton.styleFrom(backgroundColor: errorColor),
               onPressed: () async {
+                // 1. Fecha o Dialog IMEDIATAMENTE para evitar conflito de UI
+                Navigator.of(context).pop();
+
+                // 2. Feedback visual
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Deletando chave...')),
+                );
+
                 try {
-                  Navigator.pop(context);
-
-                  // Mostra feedback visual
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Deletando chave...')),
-                  );
-
+                  // 3. Chama o backend
                   await ItemService().deleteItem(widget.itemId);
 
-                  // Remove o feedback visual
+                  // 4. Checagem vital: Se a tela já morreu, para tudo.
+                  if (!mounted) return;
+
                   ScaffoldMessenger.of(context).hideCurrentSnackBar();
 
-                  // Retorna indicando que o item foi deletado
-                  if (mounted) {
-                    Navigator.pop(context, true);
-                  }
+                  // 5. Sucesso e sai da tela
+                  Navigator.of(
+                    context,
+                  ).pop(true); // Retorna true para atualizar a lista anterior
                 } catch (e) {
-                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                  final errorColor = Theme.of(context).colorScheme.error;
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Erro ao deletar chave: ${e.toString()}'),
-                      backgroundColor: errorColor,
-                    ),
-                  );
+                  // Se der erro e a tela ainda estiver ativa
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          'Erro: Não foi possível deletar (Verifique o backend)',
+                        ),
+                        backgroundColor: Theme.of(context).colorScheme.error,
+                      ),
+                    );
+                  }
                 }
               },
               child: Text(

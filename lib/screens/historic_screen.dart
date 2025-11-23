@@ -10,20 +10,87 @@ class HistoricScreen extends StatefulWidget {
   State<HistoricScreen> createState() => _HistoricScreenState();
 }
 
-// MUDANÇA AQUI: De _HistoryScreenState para _HistoricScreenState
 class _HistoricScreenState extends State<HistoricScreen> {
-  late Future<List<dynamic>> _historyFuture;
+  // Variáveis de Estado para Paginação
+  final ScrollController _scrollController = ScrollController();
+  final List<dynamic> _items = [];
+  bool _isLoading = false;
+  bool _hasMore = true; // Ainda tem itens para carregar?
+  int _currentPage = 0;
+  final int _pageSize = 20;
+  bool _isFirstLoad = true; // Para mostrar o loading central na primeira vez
 
   @override
   void initState() {
     super.initState();
-    _refreshHistory();
+    _fetchHistory(); // Carrega a primeira página
+
+    // Ouve o scroll. Se chegar no final, carrega mais.
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels >=
+              _scrollController.position.maxScrollExtent -
+                  200 && // -200px antes do fim
+          !_isLoading &&
+          _hasMore) {
+        _fetchHistory();
+      }
+    });
   }
 
-  void _refreshHistory() {
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _fetchHistory() async {
+    if (_isLoading) return;
+
     setState(() {
-      _historyFuture = HistoryService().getHistory();
+      _isLoading = true;
     });
+
+    try {
+      // Chama o service passando a página atual
+      final newItems = await HistoryService().getHistory(
+        page: _currentPage,
+        size: _pageSize,
+      );
+
+      setState(() {
+        _currentPage++;
+        _items.addAll(newItems);
+
+        // Se vieram menos itens que o tamanho da página, acabou o histórico
+        if (newItems.length < _pageSize) {
+          _hasMore = false;
+        }
+
+        _isLoading = false;
+        _isFirstLoad = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+        _isFirstLoad = false;
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erro ao carregar mais itens: $e')),
+        );
+      }
+    }
+  }
+
+  // Reseta tudo e carrega do zero (Pull to Refresh)
+  Future<void> _refreshHistory() async {
+    setState(() {
+      _items.clear();
+      _currentPage = 0;
+      _hasMore = true;
+      _isFirstLoad = true;
+    });
+    await _fetchHistory();
   }
 
   String _formatDate(String? dateString) {
@@ -45,7 +112,7 @@ class _HistoricScreenState extends State<HistoricScreen> {
             color: Colors.green.withOpacity(0.1),
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Icon(Icons.add_circle_outline, color: Colors.green),
+          child: const Icon(Icons.add_circle_outline, color: Colors.green),
         );
       case 'REMOCAO':
         return Container(
@@ -54,7 +121,7 @@ class _HistoricScreenState extends State<HistoricScreen> {
             color: Colors.red.withOpacity(0.1),
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Icon(Icons.delete_outline, color: Colors.red),
+          child: const Icon(Icons.delete_outline, color: Colors.red),
         );
       case 'EDICAO':
         return Container(
@@ -63,7 +130,7 @@ class _HistoricScreenState extends State<HistoricScreen> {
             color: Colors.orange.withOpacity(0.1),
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Icon(Icons.edit_note, color: Colors.orange),
+          child: const Icon(Icons.edit_note, color: Colors.orange),
         );
       case 'EXPORTACAO_PDF':
       default:
@@ -139,97 +206,92 @@ class _HistoricScreenState extends State<HistoricScreen> {
                       ),
                       const SizedBox(height: 12),
 
-                      // Lista Dinâmica
+                      // Lógica de Exibição da Lista
                       Expanded(
-                        child: FutureBuilder<List<dynamic>>(
-                          future: _historyFuture,
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              return const Center(
-                                child: CircularProgressIndicator(),
-                              );
-                            }
-
-                            if (snapshot.hasError) {
-                              return Center(
-                                child: Text(
-                                  'Erro ao carregar histórico.',
-                                  style: GoogleFonts.inter(
-                                    color: colorScheme.error,
-                                  ),
-                                ),
-                              );
-                            }
-
-                            final lista = snapshot.data ?? [];
-
-                            if (lista.isEmpty) {
-                              return Center(
-                                child: Text(
-                                  'Nenhum evento registrado ainda.',
-                                  style: GoogleFonts.inter(
-                                    color: mutedColor,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                              );
-                            }
-
-                            return ListView.separated(
-                              itemCount: lista.length,
-                              separatorBuilder:
-                                  (ctx, i) => Divider(
-                                    color: mutedColor.withOpacity(0.2),
-                                  ),
-                              itemBuilder: (context, index) {
-                                final item = lista[index];
-                                final tipo =
-                                    item['tipoEvento'] ??
-                                    'OUTRO'; // Campo novo vindo do DTO
-                                final descricao = item['descricao'] ?? '';
-
-                                return ListTile(
-                                  contentPadding: EdgeInsets.zero,
-                                  // Usa a função para o ícone
-                                  leading: _getIconForType(tipo, colorScheme),
-                                  title: Text(
-                                    item['nomeItem'] ?? 'Item Desconhecido',
+                        child:
+                            _isFirstLoad
+                                ? const Center(
+                                  child: CircularProgressIndicator(),
+                                )
+                                : _items.isEmpty
+                                ? Center(
+                                  child: Text(
+                                    'Nenhum evento registrado ainda.',
                                     style: GoogleFonts.inter(
-                                      color: textColor,
-                                      fontWeight: FontWeight.w600,
+                                      color: mutedColor,
+                                      fontSize: 14,
                                     ),
                                   ),
-                                  subtitle: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        descricao,
-                                        // Mostra "Chave criada" ou "PDF Gerado: ..."
-                                        style: GoogleFonts.inter(
-                                          color: mutedColor,
-                                          fontSize: 12,
-                                        ),
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
+                                )
+                                : ListView.separated(
+                                  controller: _scrollController,
+                                  // Importante!
+                                  itemCount: _items.length + (_hasMore ? 1 : 0),
+                                  // +1 pro loading do final
+                                  separatorBuilder:
+                                      (ctx, i) => Divider(
+                                        color: mutedColor.withOpacity(0.2),
                                       ),
-                                      const SizedBox(height: 2),
-                                      Text(
-                                        _formatDate(item['dataHora']),
-                                        // Campo renomeado no DTO
+                                  itemBuilder: (context, index) {
+                                    // Se for o último item e ainda tiver mais, mostra loading
+                                    if (index == _items.length) {
+                                      return const Center(
+                                        child: Padding(
+                                          padding: EdgeInsets.all(16.0),
+                                          child: SizedBox(
+                                            width: 24,
+                                            height: 24,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    }
+
+                                    final item = _items[index];
+                                    final tipo = item['tipoEvento'] ?? 'OUTRO';
+                                    final descricao = item['descricao'] ?? '';
+
+                                    return ListTile(
+                                      contentPadding: EdgeInsets.zero,
+                                      leading: _getIconForType(
+                                        tipo,
+                                        colorScheme,
+                                      ),
+                                      title: Text(
+                                        item['nomeItem'] ?? 'Item Desconhecido',
                                         style: GoogleFonts.inter(
-                                          color: mutedColor,
-                                          fontSize: 10,
+                                          color: textColor,
+                                          fontWeight: FontWeight.w600,
                                         ),
                                       ),
-                                    ],
-                                  ),
-                                );
-                              },
-                            );
-                          },
-                        ),
+                                      subtitle: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            descricao,
+                                            style: GoogleFonts.inter(
+                                              color: mutedColor,
+                                              fontSize: 12,
+                                            ),
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                          const SizedBox(height: 2),
+                                          Text(
+                                            _formatDate(item['dataHora']),
+                                            style: GoogleFonts.inter(
+                                              color: mutedColor,
+                                              fontSize: 10,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                ),
                       ),
                     ],
                   ),

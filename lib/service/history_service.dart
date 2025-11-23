@@ -5,10 +5,11 @@ import 'api.dart'; // Importa o getBaseUrl centralizado
 import 'auth_service.dart';
 
 class HistoryService {
-  // 1. Buscar o histórico (GET)
-  Future<List<dynamic>> getHistory() async {
+  // Agora aceita página e tamanho
+  Future<List<dynamic>> getHistory({int page = 0, int size = 20}) async {
     try {
-      final url = Uri.parse('${getBaseUrl()}/historico');
+      // Adiciona os parâmetros na URL
+      final url = Uri.parse('${getBaseUrl()}/historico?page=$page&size=$size');
       final headers = await AuthService.headers;
 
       final response = await http.get(url, headers: headers);
@@ -20,7 +21,7 @@ class HistoryService {
       }
     } catch (e) {
       debugPrint('Erro ao buscar histórico: $e');
-      return []; // Retorna lista vazia em caso de erro para não quebrar a tela
+      return [];
     }
   }
 
